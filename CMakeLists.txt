@@ -18,6 +18,8 @@ if (${CAFFE2_VERSION} VERSION_LESS 0.8.2)
 endif()
 
 # Add compiler flags.
+message("CMAKE_C_FLAGS is ${CMAKE_C_FLAGS}")
+message("CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2 -fPIC -Wno-narrowing")
 
@@ -26,6 +28,7 @@ include(cmake/Summary.cmake)
 detectron_print_config_summary()
 
 # Collect custom ops sources.
+message("ops is ${CMAKE_CURRENT_SOURCE_DIR}/detectron/ops")
 file(GLOB CUSTOM_OPS_CPU_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/detectron/ops/*.cc)
 file(GLOB CUSTOM_OPS_GPU_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/detectron/ops/*.cu)
 
@@ -34,8 +37,11 @@ add_library(
      caffe2_detectron_custom_ops SHARED
      ${CUSTOM_OPS_CPU_SRCS})
 
-target_link_libraries(caffe2_detectron_custom_ops caffe2_library)
-install(TARGETS caffe2_detectron_custom_ops DESTINATION lib)
+message("ROOT_DIR is ${ROOT_DIR}")
+include_directories(${ENV_DIR}/include)
+include_directories(${ROOT_DIR}/include)
+#target_link_libraries(caffe2_detectron_custom_ops caffe2)
+#install(TARGETS caffe2_detectron_custom_ops DESTINATION lib)
 
 # Install custom GPU ops lib, if gpu is present.
 if (CAFFE2_USE_CUDA OR CAFFE2_FOUND_CUDA)
@@ -47,6 +53,6 @@ if (CAFFE2_USE_CUDA OR CAFFE2_FOUND_CUDA)
       ${CUSTOM_OPS_CPU_SRCS}
       ${CUSTOM_OPS_GPU_SRCS})
 
-  target_link_libraries(caffe2_detectron_custom_ops_gpu caffe2_gpu_library)
+  target_link_libraries(caffe2_detectron_custom_ops_gpu caffe2_gpu)
   install(TARGETS caffe2_detectron_custom_ops_gpu DESTINATION lib)
 endif()
